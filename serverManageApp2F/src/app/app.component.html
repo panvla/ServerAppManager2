@@ -1,0 +1,92 @@
+<div class="container">
+  <div class="table-responsevie">
+    <div class="table-wrapper">
+      <div class="table-title">
+        <div class="row mt-3">
+          <div class="col-sm-6">
+            <h2>Manage Servers</h2>
+          </div>
+          <div class="col-sm-6">
+            <button type="button" class="btn btn-primary ms-2">Print Report</button>
+            <a href="#addEmployeeModal" class="btn btn-success ms-2" data-toggle="modal">
+              <i class="material-icons">&#xE147;</i>
+              <span>New Server</span>
+            </a>
+            <span>
+              <select (ngModelChange)="filterServers($event)" name="status" ngModel="ALL" class="btn btn-info ms-2">
+                <option value="ALL">ALL</option>
+                <option value="SERVER_UP">SERVER UP</option>
+                <option value="SERVER_DOWN">SERVER DOWN</option>
+              </select>
+            </span>
+          </div>
+        </div>
+      </div>
+      <ng-container *ngIf="(appState$ |async) as appState" [ngSwitch]="appState.dataState">
+        <ng-container *ngSwitchCase="DataState.LOADING_STATE">
+          <div class="container d-flex justify-content-center mt-5">
+            <div class="spinner-border text-primary " role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </ng-container>
+        <ng-container *ngSwitchCase="DataState.LOADED_STATE">
+          <table class="table table-success table-striped mt-3">
+            <thead>
+              <tr>
+                <th scope="col">Image</th>
+                <th scope="col">IP Address</th>
+                <th scope="col">Name</th>
+                <th scope="col">Memory</th>
+                <th scope="col">Type</th>
+                <th scope="col">Status</th>
+                <th scope="col">Ping</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let server of appState.appData.data.servers; let i = index;">
+                <td><img [src]="server.imageUrl" [alt]="server.name" width="40" height="40"></td>
+                <td>{{ server.ipAddress }}</td>
+                <td>{{ server.name }}</td>
+                <td>{{ server.memory }}</td>
+                <td>{{ server.type }}</td>
+                <td>
+                  <span class="badge" [ngClass]="[server.status === Status.SERVER_UP ? ' bg-success' : ' bg-danger']">
+                    {{ server.status === Status.SERVER_UP ? 'SERVER UP' : 'SERVER DOWN'}}
+                  </span>
+                </td>
+                <td>
+                  <a (click)="pingServer(server.ipAddress)" style="cursor: pointer;">
+                    <i *ngIf="(filterStatus$ |async) === '' || (filterStatus$ |async) !== server.ipAddress"
+                      class="material-icons" title="Ping server">&#xe328;</i>
+                    <i *ngIf="(filterStatus$ |async) === server.ipAddress" class="spinner-border spinner-border-sm"
+                      style="font-size:24px"></i>
+                  </a>
+                </td>
+                <td>
+                  <a (click)="deleteServer(server)" class="delete" data-toggle="modal" style="cursor: pointer;">
+                    <i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+        <ng-container *ngSwitchCase="DataState.ERROR_STATE">
+          <div class="alert alert-primary d-flex align-items-center mt-5" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+              class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img"
+              aria-label="Warning:">
+              <path
+                d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+            </svg>
+            <div>
+              No Servers Found!
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+</div>
